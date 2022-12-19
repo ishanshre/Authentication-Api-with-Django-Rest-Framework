@@ -8,11 +8,13 @@ from accounts.serializers import (
     LoginSeralizer,
     RegisterSerializer,
     EmailVerifySerializer,
+    ResendEmailConfirmationLinkSerailzer,
 )
 
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 
 User = get_user_model()
@@ -66,3 +68,21 @@ class VerifyEmail(GenericAPIView):
             "error":"invalid token"
         }, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+class ResendEmailLinkApiView(GenericAPIView):
+    serializer_class = ResendEmailConfirmationLinkSerailzer
+    permission_classes = [IsAuthenticated]
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(instance=request.user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        current_site = get_current_site(request=request).domain
+        if not request.user.email_confirmed:
+            create_email(
+                username=request.user.username,
+                email=request.user.email,
+                action="email_verify",
+                current_site=current_site
+            )
+            return Response({"done":"email confirm link sent to your mail"}, status=status.HTTP_200_OK)
+        return Response({"error":"email already confirmed"})

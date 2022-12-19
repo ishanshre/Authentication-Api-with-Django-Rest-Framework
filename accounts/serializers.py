@@ -90,3 +90,12 @@ class EmailVerifySerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = []
+
+
+class ResendEmailConfirmationLinkSerailzer(serializers.ModelSerializer):
+    email_confirmed = serializers.BooleanField(read_only=True)
+    class Meta:
+        model = User
+        fields = ['email_confirmed']
+        
+    
