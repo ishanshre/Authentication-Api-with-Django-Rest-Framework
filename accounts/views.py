@@ -9,6 +9,7 @@ from accounts.serializers import (
     RegisterSerializer,
     EmailVerifySerializer,
     ResendEmailConfirmationLinkSerailzer,
+    SimpleUserSerializer,
 )
 
 from rest_framework.response import Response
@@ -86,3 +87,13 @@ class ResendEmailLinkApiView(GenericAPIView):
             )
             return Response({"done":"email confirm link sent to your mail"}, status=status.HTTP_200_OK)
         return Response({"error":"email already confirmed"})
+
+
+
+class UserApiView(GenericAPIView):
+    serializer_class = SimpleUserSerializer
+    permission_classes = [IsAuthenticated]
+    def get(self, request, *args, **kwargs):
+        instance = request.user
+        serializer = self.serializer_class(instance=instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -13,4 +13,5 @@ urlpatterns = [
     path('register/', views.RegisterApiView.as_view(), name="register"),
     path("verify/", views.VerifyEmail.as_view(), name="email_verify"),
     path("resend-verify/", views.ResendEmailLinkApiView.as_view(), name='resend'),
+    path("user/", views.UserApiView.as_view(), name="get_user"),
 ]
