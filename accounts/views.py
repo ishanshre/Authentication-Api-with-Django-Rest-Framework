@@ -3,6 +3,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth import get_user_model
 
 from accounts.email import create_email
+from accounts.models import Profile
 from accounts.tokens import decode_token
 from accounts.serializers import (
     LoginSeralizer,
@@ -10,6 +11,7 @@ from accounts.serializers import (
     EmailVerifySerializer,
     ResendEmailConfirmationLinkSerailzer,
     SimpleUserSerializer,
+    ProfileSeralizer,
 )
 
 from rest_framework.response import Response
@@ -96,4 +98,19 @@ class UserApiView(GenericAPIView):
     def get(self, request, *args, **kwargs):
         instance = request.user
         serializer = self.serializer_class(instance=instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+class ProfileDetailUpdateApiView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get','options','head']
+
+    def get_serializer_class(self, *args, **kwargs):
+        return ProfileSeralizer
+    
+    def get(self, request, *args, **kwargs):
+        serializer = self.get_serializer_class()
+        profile = get_object_or_404(Profile, user=request.user)
+        serializer = serializer(instance=profile)
         return Response(serializer.data, status=status.HTTP_200_OK)

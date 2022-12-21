@@ -6,6 +6,8 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
+from accounts.models import Profile
+
 
 User = get_user_model()
 
@@ -100,6 +102,30 @@ class ResendEmailConfirmationLinkSerailzer(serializers.ModelSerializer):
         
 
 class SimpleUserSerializer(serializers.ModelSerializer):
+    email_confirmed = serializers.BooleanField(read_only=True)
+    username = serializers.CharField(read_only=True)
+    email = serializers.EmailField(read_only=True)
     class Meta:
         model = User
         fields = ['username','email','email_confirmed']
+
+
+
+class UserDetailSerailizer(serializers.ModelSerializer):
+    username = serializers.CharField(read_only=True)
+    email = serializers.EmailField(read_only=True)
+    email_confirmed = serializers.BooleanField(read_only=True)
+    is_active = serializers.BooleanField(read_only=True)
+    date_joined = serializers.DateTimeField(read_only=True)
+    last_login = serializers.DateTimeField(read_only=True)
+    class Meta:
+        model = User
+        fields = ['first_name','last_name','username','email','email_confirmed','is_active','date_joined','last_login']
+
+
+class ProfileSeralizer(serializers.ModelSerializer):
+    user = UserDetailSerailizer()
+
+    class Meta:
+        model = Profile
+        fields = ['user','avatar','bio','gender','facebook','twitter','github']
