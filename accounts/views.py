@@ -12,6 +12,7 @@ from accounts.serializers import (
     ResendEmailConfirmationLinkSerailzer,
     SimpleUserSerializer,
     ProfileSeralizer,
+    ProfileEditSerializer,
 )
 
 from rest_framework.response import Response
@@ -28,6 +29,7 @@ class LoginApiView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serailizer = self.serializer_class(data=request.data)
         serailizer.is_valid(raise_exception=True)
+        
         return Response(serailizer.data, status=status.HTTP_200_OK)
         
 
@@ -104,13 +106,26 @@ class UserApiView(GenericAPIView):
 
 class ProfileDetailUpdateApiView(GenericAPIView):
     permission_classes = [IsAuthenticated]
-    http_method_names = ['get','options','head']
+    http_method_names = ['get','put']
+    
+    def get_queryset(self):
+        return Profile.objects.get(user=self.request.user)
 
     def get_serializer_class(self, *args, **kwargs):
+        if self.request.method == "PUT":
+            return ProfileEditSerializer
         return ProfileSeralizer
     
     def get(self, request, *args, **kwargs):
         serializer = self.get_serializer_class()
-        profile = get_object_or_404(Profile, user=request.user)
+        profile = self.get_queryset()
         serializer = serializer(instance=profile)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, *args, **kwargs):
+        serializer = self.get_serializer_class()
+        profile = self.get_queryset()
+        serializer = serializer(instance=profile, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)

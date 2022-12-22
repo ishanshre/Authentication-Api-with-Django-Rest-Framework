@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import update_last_login
 
 from accounts.models import Profile
 
@@ -33,6 +34,7 @@ class LoginSeralizer(serializers.ModelSerializer):
         if not user.is_active:
             raise serializers.ValidationError({"error":"Sorry! cannot login deactivte account."})
         tokens = user.get_tokens()
+        update_last_login(None, user=user)
         return {
             'email':user.email,
             'username':user.username,
@@ -113,7 +115,7 @@ class SimpleUserSerializer(serializers.ModelSerializer):
 
 class UserDetailSerailizer(serializers.ModelSerializer):
     username = serializers.CharField(read_only=True)
-    email = serializers.EmailField(read_only=True)
+    email = serializers.CharField(read_only=True)
     email_confirmed = serializers.BooleanField(read_only=True)
     is_active = serializers.BooleanField(read_only=True)
     date_joined = serializers.DateTimeField(read_only=True)
@@ -129,3 +131,21 @@ class ProfileSeralizer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['user','avatar','bio','gender','facebook','twitter','github']
+
+class ProfileEditSerializer(serializers.ModelSerializer):
+    user = UserDetailSerailizer()
+    class Meta:
+        model = Profile
+        fields = ['user','avatar','bio','gender','facebook','twitter','github']
+
+
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop('user')
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        user = User.objects.get(profile=instance)
+        user.first_name = user_data.get("first_name", user.first_name)
+        user.last_name = user_data.get("last_name", user.last_name)
+        user.save()
+        instance.save()
+        return instance
