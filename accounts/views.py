@@ -29,7 +29,7 @@ class LoginApiView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serailizer = self.serializer_class(data=request.data)
         serailizer.is_valid(raise_exception=True)
-        
+
         return Response(serailizer.data, status=status.HTTP_200_OK)
         
 
@@ -97,11 +97,20 @@ class ResendEmailLinkApiView(GenericAPIView):
 class UserApiView(GenericAPIView):
     serializer_class = SimpleUserSerializer
     permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        return self.request.user
     def get(self, request, *args, **kwargs):
         instance = request.user
         serializer = self.serializer_class(instance=instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def patch(self, request, *args, **kwargs):
+        instance = request.user
+        serializer =self.serializer_class(instance=instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        username = serializer.validated_data['username']
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ProfileDetailUpdateApiView(GenericAPIView):

@@ -105,12 +105,10 @@ class ResendEmailConfirmationLinkSerailzer(serializers.ModelSerializer):
 
 class SimpleUserSerializer(serializers.ModelSerializer):
     email_confirmed = serializers.BooleanField(read_only=True)
-    username = serializers.CharField(read_only=True)
-    email = serializers.EmailField(read_only=True)
     class Meta:
         model = User
         fields = ['username','email','email_confirmed']
-
+        
 
 
 class UserDetailSerailizer(serializers.ModelSerializer):
