@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     #third party apps
     'rest_framework',
     'debug_toolbar',
+    'rest_framework_simplejwt.token_blacklist',
     
 
     #local apps

@@ -7,6 +7,7 @@ from accounts.models import Profile
 from accounts.tokens import decode_token
 from accounts.serializers import (
     LoginSeralizer,
+    LogoutSerializer,
     RegisterSerializer,
     EmailVerifySerializer,
     ResendEmailConfirmationLinkSerailzer,
@@ -33,7 +34,14 @@ class LoginApiView(GenericAPIView):
 
         return Response(serailizer.data, status=status.HTTP_200_OK)
         
-
+class LogoutApiView(GenericAPIView):
+    serializer_class = LogoutSerializer
+    permission_classes = [IsAuthenticated]
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"success":"logout successfull"}, status=status.HTTP_200_OK)
 
 class RegisterApiView(GenericAPIView):
     serializer_class = RegisterSerializer
