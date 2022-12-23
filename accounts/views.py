@@ -13,6 +13,7 @@ from accounts.serializers import (
     SimpleUserSerializer,
     ProfileSeralizer,
     ProfileEditSerializer,
+    PasswordChangeSerilaizer,
 )
 
 from rest_framework.response import Response
@@ -138,3 +139,16 @@ class ProfileDetailUpdateApiView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class PasswordChangeApiView(GenericAPIView):
+    serializer_class = PasswordChangeSerilaizer
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.context['user'] = request.user
+        serializer.is_valid(raise_exception=True)
+        return Response({
+            "Success": "Password Change Success Full"
+        }, status=status.HTTP_200_OK)

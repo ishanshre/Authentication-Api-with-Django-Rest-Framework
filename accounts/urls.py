@@ -15,4 +15,5 @@ urlpatterns = [
     path("resend-verify/", views.ResendEmailLinkApiView.as_view(), name='resend'),
     path("user/", views.UserApiView.as_view(), name="get_user"),
     path('profile/', views.ProfileDetailUpdateApiView.as_view(), name='profile'),
+    path('password/change/', views.PasswordChangeApiView.as_view(), name="password_change"),
 ]

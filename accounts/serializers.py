@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.settings import api_settings
+from rest_framework.exceptions import AuthenticationFailed
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
@@ -147,3 +148,29 @@ class ProfileEditSerializer(serializers.ModelSerializer):
         user.save()
         instance.save()
         return instance
+
+
+
+class PasswordChangeSerilaizer(serializers.ModelSerializer):
+    old_password = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True)
+    password_confirm = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['old_password','password','password_confirm']
+    
+    def validate(self, attrs):
+        old_password = attrs.get("old_password")
+        password = attrs.get("password")
+        password_confirm = attrs.get("password_confirm")
+        user = self.context['user'] or None
+        if user is not None:
+            if not user.check_password(old_password):
+                raise AuthenticationFailed({"error":"old password does not mathch"})
+            if password != password_confirm:
+                raise AuthenticationFailed({"error":"confirm password does not match"})
+            user.set_password(password)
+            user.save()
+            return user
+        return super().validate(attrs)
