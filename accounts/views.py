@@ -182,12 +182,6 @@ class PasswordResetApiView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        token = serializer.data['token']
-        username, verify_status = decode_token(token=token)
-        if verify_status:
-            user = User.objects.get(username=username)
-            user.set_password(serializer.validated_data['new_password'])
-            user.save()
-            return Response({"success":"Your Password Changed Successfull"})
-        return Response({"error":"error occured in changing password"})
+        return Response({"success":"Your Password Changed Successfull"})
+     
         

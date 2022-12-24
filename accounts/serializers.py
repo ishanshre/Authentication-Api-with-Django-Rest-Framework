@@ -223,8 +223,20 @@ class PasswordResetSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         password1 = attrs.get("new_password", '')
         password2 = attrs.get("new_password_confirm", '')
+        token = attrs.get("token")
+        username, verify_status = decode_token(token)
+        user = User.objects.get(username=username)
+        try:
+            validate_password(password=password1, user=user)
+        except ValidationError as e:
+            serializers_error = serializers.as_serializer_error(e)
+            raise serializers.ValidationError({
+                "password": serializers_error[api_settings.NON_FIELD_ERRORS_KEY]
+            })      
         if password1 != password2:
             raise serializers.ValidationError({"error":"password mismatch"})
+        user.set_password(password1)
+        user.save()
         return attrs
     
     
