@@ -108,9 +108,10 @@ class RegisterSerializer(serializers.ModelSerializer):
     
 
 class EmailVerifySerializer(serializers.ModelSerializer):
+    token =serializers.CharField()
     class Meta:
         model = User
-        fields = []
+        fields = ["token"]
 
 
 class ResendEmailConfirmationLinkSerailzer(serializers.ModelSerializer):
@@ -217,7 +218,7 @@ class PasswordResetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["token","new_password","new_password_confirm"]
+        fields = ["token", "new_password","new_password_confirm"]
     
     def validate(self, attrs):
         password1 = attrs.get("new_password", '')

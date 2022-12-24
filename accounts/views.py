@@ -69,9 +69,10 @@ class RegisterApiView(GenericAPIView):
 
 class VerifyEmail(GenericAPIView):
     serializer_class = EmailVerifySerializer
-    def get(self, request, *args, **kwargs):
-        serializer = self.serializer_class()
-        token = request.GET.get("token")
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        token = serializer.data['token']
         username, verify_status = decode_token(token)
         if verify_status:
             user = get_object_or_404(User, username=username)
