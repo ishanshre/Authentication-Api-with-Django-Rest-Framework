@@ -23,7 +23,10 @@ def decode_token(token):
         payload = jwt.decode(token, key=secret, algorithms=algorithm)
         if payload['scope'] == "email_verify":
             return payload['username'], True
+        if payload['scope'] == "password_reset":
+            return payload['username'], True
         return None, False
     except jwt.ExpiredSignatureError:
         return None, False
+    return None, False
         

@@ -15,6 +15,8 @@ from accounts.serializers import (
     ProfileSeralizer,
     ProfileEditSerializer,
     PasswordChangeSerilaizer,
+    PasswordResetLinkSerializer,
+    PasswordResetSerializer,
 )
 
 from rest_framework.response import Response
@@ -160,3 +162,31 @@ class PasswordChangeApiView(GenericAPIView):
         return Response({
             "Success": "Password Change Success Full"
         }, status=status.HTTP_200_OK)
+
+
+class PasswordResetLinkApiView(GenericAPIView):
+    serializer_class = PasswordResetLinkSerializer
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        current_site = get_current_site(request=request).domain
+        serializer.context['current_site']=current_site
+        serializer.is_valid(raise_exception=True)
+        return Response({"success":f"Password Reset Link has been sent to your email {serializer.validated_data['email']}."})
+
+
+class PasswordResetApiView(GenericAPIView):
+    serializer_class = PasswordResetSerializer
+    http_method_names = ['post']
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        token = serializer.data['token']
+        username, verify_status = decode_token(token=token)
+        if verify_status:
+            user = User.objects.get(username=username)
+            user.set_password(serializer.validated_data['new_password'])
+            user.save()
+            return Response({"success":"Your Password Changed Successfull"})
+        return Response({"error":"error occured in changing password"})
+        

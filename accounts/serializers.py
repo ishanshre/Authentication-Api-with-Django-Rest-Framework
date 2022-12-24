@@ -12,6 +12,8 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import update_last_login
 
 from accounts.models import Profile
+from accounts.email import create_email
+from accounts.tokens import decode_token
 
 
 User = get_user_model()
@@ -188,3 +190,40 @@ class PasswordChangeSerilaizer(serializers.ModelSerializer):
             user.save()
             return user
         return super().validate(attrs)
+
+
+class PasswordResetLinkSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    class Meta:
+        fields = ["email",]
+    
+    def validate(self, attrs):
+        email = attrs.get("email")
+        try:
+            if not User.objects.filter(email=email).exists():
+                return serializers.ValidationError({"error":f"user with {email} does not exist"})
+
+        except:
+            pass
+        user = User.objects.get(email=email)
+        create_email(username=user.username, email=email, action="password_reset", current_site=self.context['current_site'])
+        return attrs
+
+
+class PasswordResetSerializer(serializers.ModelSerializer):
+    token = serializers.CharField()
+    new_password = serializers.CharField(write_only=True)
+    new_password_confirm = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ["token","new_password","new_password_confirm"]
+    
+    def validate(self, attrs):
+        password1 = attrs.get("new_password", '')
+        password2 = attrs.get("new_password_confirm", '')
+        if password1 != password2:
+            raise serializers.ValidationError({"error":"password mismatch"})
+        return attrs
+    
+    
