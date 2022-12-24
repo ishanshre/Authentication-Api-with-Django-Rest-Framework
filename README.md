@@ -12,3 +12,4 @@
 9. Reset Password or Forget Password Endpoint
 10. Reset Password or Forget Password Confirm Endpoint
 11. Profile View, Update, Delete Endpoint (Profile means both user and its profile)
+12. Swagger UI integration

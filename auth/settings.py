@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'debug_toolbar',
     'rest_framework_simplejwt.token_blacklist',
+    'drf_yasg',
     
 
     #local apps
@@ -194,4 +195,15 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         
     ],
+}
+
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
 }
