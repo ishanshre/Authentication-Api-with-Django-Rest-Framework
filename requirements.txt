@@ -6,7 +6,7 @@ Markdown==3.4.1
 python-dotenv==0.21.0
 pytz==2022.6
 sqlparse==0.4.3
-mysqlclient
+psycopg2==2.9.5
 django-debug-toolbar==3.7.0
 djangorestframework-simplejwt==5.2.2
 pillow==9.3.0
