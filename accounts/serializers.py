@@ -202,10 +202,9 @@ class PasswordResetLinkSerializer(serializers.Serializer):
         email = attrs.get("email")
         try:
             if not User.objects.filter(email=email).exists():
-                return serializers.ValidationError({"error":f"user with {email} does not exist"})
-
-        except:
-            pass
+                raise serializers.ValidationError({"error":f"user with {email} does not exist"})
+        except User.DoesNotExist:
+            raise serializers.ValidationError({"error":"user does not exist"})
         user = User.objects.get(email=email)
         create_email(username=user.username, email=email, action="password_reset", current_site=self.context['current_site'])
         return attrs
